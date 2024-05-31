@@ -1,0 +1,80 @@
+Project Structure:
+
+src/
+controllers/: Contains controller functions for handling HTTP requests.
+middlewares/: Contains middleware functions for authentication and authorization.
+models/: Contains database models and schema definitions.
+routes/: Contains route definitions.
+services/: Contains business logic for handling user and account operations.
+utils/: Contains utility functions.
+tests/: Contains unit tests for various modules.
+Database Schema:
+
+--Users Table:
+id (Primary Key)
+username
+password (hashed)
+role (ADMIN, CUSTOMER, AUDIT)
+status (ACTIVE, DELETED)
+created_at
+updated_at
+
+--Accounts Table:
+id (Primary Key)
+user_id (Foreign Key)
+balance
+status (ACTIVE, DELETED)
+created_at
+updated_at
+
+--Transactions Table:
+id (Primary Key)
+from_account_id (Foreign Key)
+to_account_id (Foreign Key)
+amount
+type (DEPOSIT, WITHDRAWAL, TRANSFER)
+created_at
+Authentication and Authorization:
+
+Use JWT (JSON Web Tokens) for authentication.
+Middleware for authentication and authorization based on user roles.
+User Management:
+
+User registration with validation.
+User login with JWT generation.
+User profile management (update profile).
+Account Management:
+
+Creating bank accounts for registered users.
+Viewing account details including balance.
+Depositing money into an account.
+Withdrawing money from an account.
+Transferring money between accounts.
+Audit Management:
+
+Capture all activities (create, update, delete) in the audit trail.
+Only users with AUDIT role can view the audit trail.
+Notification:
+
+Implement notification system for user actions like user creation, account creation, deposit, withdrawal, and transfer.
+Notifications can be sent via email or in-app notifications.
+Business Logic:
+
+Implement business logic for account operations ensuring that account balance cannot be negative.
+Check account balance before withdrawing or transferring money.
+Soft Delete:
+
+Implement soft delete mechanism for entities (users, accounts) instead of physical deletion.
+Unit Testing:
+
+Write unit tests for all modules including controllers, services, and utilities using testing frameworks like Jest.
+Error Handling:
+
+Implement centralized error handling mechanism to handle errors gracefully and return appropriate error responses.
+Dependency Injection:
+
+Use dependency injection for better testability and decoupling of modules.
+This model design provides a structured approach to develop the mini banking application meeting the acceptance criteria and ensuring maintainability and scalability.
+
+
+
