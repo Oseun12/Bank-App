@@ -48,7 +48,7 @@ export async function postLogin(req: Request, res: Response) {
         //After login generate token
         const token = await service.authService.generateToken(user.id, user.username,user.password, user.email);
         req.session.user = user.username;
-        res.json({ data: { access_token: token.acess_token, expires_in: token.expires_in }, message: 'Login successful!', status: 200 });
+        res.json({ data: { access_token: token.access_token, expires_in: token.expires_in }, message: 'Login successful!', status: 200 });
     } catch(error) {
         console.error('Error: ', error);
         res.status(500).json({ message: 'Internal Server error-1' });

@@ -12,6 +12,7 @@ export class Account extends Model {
     public status!: string;
     public readonly createdAt!: Date;
     public updatedAt!: Date;
+    static balance: number;
 }
 Account.init({
     id: {

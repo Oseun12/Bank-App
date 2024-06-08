@@ -80,6 +80,8 @@ const SECRET_KEY = 'somesecretsecret';
 const TOKEN_EXPIRATION = '1hr';
 
 interface Token {
+    expires_in: any;
+    access_token: any;
     token: string;
 }
 

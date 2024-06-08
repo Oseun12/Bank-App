@@ -1,7 +1,7 @@
 import * as accountService from './account.service';
 import * as userService from './user.service';
 import * as auditService from './audit.service';
-import * as authService from './authService';
+import * as authService from './auth.service'
 
 export default {
     userService: userService,
