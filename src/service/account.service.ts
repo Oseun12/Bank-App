@@ -4,11 +4,12 @@ import { sendNotification, sendWelcomeEmail } from "./auth.service";
 import { AccountRequest } from "../model/request/account.request";
 
 export async function createAccount(request: AccountRequest): Promise<Account> {
-    return new Promise<Account>((resolve, reject) => {
-        Account.findOne({ where: { userId: request.userId } }).then(async(account) => {
-            if (account) {
-                console.log('Accoun already exists');
-                throw Error('Account already exists');
+    return new Promise<Account>(async (resolve, reject) => {
+        try {
+            const existingAccount = await Account.findOne({ where: { userId: request.userId } });
+            if (existingAccount) {
+                console.log('Account already exists');
+                return reject(new Error('Account already exists'));
             }
             // To create Account
             const newAccount = new Account({
@@ -18,89 +19,105 @@ export async function createAccount(request: AccountRequest): Promise<Account> {
                 createdAt: new Date(),
                 updatedAt: new Date()
             });
-            // Save the book
-            newAccount.save().then((account) => {
-                console.log('Account created Successfully');
-                resolve(account);
-            }).catch((error) => {
-                console.error('Error createing account: ', error);
-                reject(null);
-            });
-        }).catch((error) => {
+            // Save the account
+            const savedAccount = await newAccount.save();
+            console.log('Account created Successfully');
+            resolve(savedAccount);
+        } catch (error) {
+            console.error('Error creating account: ', error);
             reject(error);
-        });
+        }
     });
 }
 
 export async function getAccountDetails(id: number): Promise<Account> {
-    return new Promise<Account>((resolve, reject) => {
-        Account.findByPk(id).then(async(account) => {
-            if(!account) {
+    return new Promise<Account>(async (resolve, reject) => {
+        try {
+            const account = await Account.findByPk(id);
+            if (!account) {
                 console.log('Account not found');
-                throw new Error('Account not found');
+                return reject(new Error('Account not found'));
             }
             console.log('Account found');
             resolve(account);
-        }).catch((error) => {
+        } catch (error) {
             reject(error);
-        });
+        }
     });
 }
 
 export async function deposit(id: number, amount: number): Promise<Account> {
-    return new Promise<Account>((resolve, reject) => {
-        Account.findByPk(id).then(async(account) => {
-            if(!account) {
+    return new Promise<Account>(async (resolve, reject) => {
+        try {
+            const account = await Account.findByPk(id);
+            if (!account) {
                 console.log('Account not found');
-                throw new Error('Account not found')
+                return reject(new Error('Account not found'));
             }
-            console.log('Account found-2');
-            resolve(account);
             account.balance += amount;
             await account.save();
-            await sendNotification('Deposit', `Deposited ${amount} to account ${id}. New Balance is ${account.balance}`);
-            return account;
-        })
-    })
+
+            const user = await User.findByPk(account.userId);
+            if (user) {
+                await sendNotification(user,  `Deposited ${amount} to account ${id}. New Balance is ${account.balance}`);
+
+            }
+            resolve(account);
+        } catch (error) {
+            reject(error);
+        }
+    });
 }
 
 export async function withdraw(id: number, amount: number): Promise<Account> {
-    return new Promise<Account>((resolve, reject) => {
-        Account.findByPk(id).then(async(account) => {
-            // if(!account) {
-            //     console.log('Account not found');
-            //     throw new Error('Account not found')
-            // }
-            // console.log('Account Found');
-            // throw new Error('Account Found');
-
-            if(account.balance < amount)
-                throw new Error('Insufficient funds')
+    return new Promise<Account>(async (resolve, reject) => {
+        try {
+            const account = await Account.findByPk(id);
+            if (!account) {
+                console.log('Account not found');
+                return reject(new Error('Account not found'));
+            }
+            if (account.balance < amount) {
+                return reject(new Error('Insufficient funds'));
+            }
             account.balance -= amount;
-            await account?.save();
-            await sendNotification('Withdrawal', `${amount} was withdrawn from the account ${id}, New balance: ${account.balance}`)
-            return account
-        })
-    })
+            await account.save();
+            const user = await User.findByPk(account.userId); // Fetch the User
+            if (user) {
+                await sendNotification(user, `${amount} was withdrawn from the account ${id}. New balance: ${account.balance}`);
+            }
+            resolve(account);
+        } catch (error) {
+            reject(error);
+        }
+    });
 }
-
 export async function transfer(fromAccountId: number, toAccountId: number, amount: number): Promise<Account> {
     return new Promise<Account>(async (resolve, reject) => {
-        const fromAccount = await Account.findByPk(fromAccountId);
-        const toAccount = await Account.findByPk(toAccountId);
+        try {
+            const fromAccount = await Account.findByPk(fromAccountId);
+            const toAccount = await Account.findByPk(toAccountId);
 
-        if (!fromAccount || !toAccount)
-            throw new Error('Account not found');
-        if (fromAccount.balance < amount)
-            throw new Error('Insufficient funds');
+            if (!fromAccount || !toAccount) {
+                return reject(new Error('Account not found'));
+            }
+            if (fromAccount.balance < amount) {
+                return reject(new Error('Insufficient funds'));
+            }
 
-        fromAccount.balance -= amount;
-        toAccount.balance += amount;
+            fromAccount.balance -= amount;
+            toAccount.balance += amount;
 
-        await fromAccount.save();
-        await toAccount.save();
+            await fromAccount.save();
+            await toAccount.save();
 
-        await sendNotification('Transfer', `${amount} from ${fromAccountId} to ${toAccountId} Successful, New Balance: ${fromAccount.balance}`);
-        return Account;
-    })
+            const user = await User.findByPk(fromAccount.userId); // Fetch the User
+            if (user) {
+                await sendNotification(user, `${amount} from ${fromAccountId} to ${toAccountId} successful. New Balance: ${fromAccount.balance}`);
+            }
+            resolve(fromAccount);
+        } catch (error) {
+            reject(error);
+        }
+    });
 }

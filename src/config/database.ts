@@ -42,6 +42,7 @@ export default class DatabaseConfig {
             .catch(err => {
                 console.error('Unable to connect', err)
             });
+            
         this.database.sync({
             force: true
         }).then(() => {

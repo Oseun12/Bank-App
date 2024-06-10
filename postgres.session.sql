@@ -1,0 +1,1 @@
+CREATE TABLE Bankusers (userName, password, role, email, status)

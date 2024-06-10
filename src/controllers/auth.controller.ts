@@ -33,6 +33,8 @@ declare module 'express-session' {
     }
 }
 
+const TOKEN_EXPIRATION = '2hr'
+
 export async function postLogin(req: Request, res: Response) {
     const { username, email, password } = req.body
     try {
@@ -41,14 +43,20 @@ export async function postLogin(req: Request, res: Response) {
         }
         //find user by username or email
         const user = await service.userService.getUserProfileByUsernameOrEmail(username, email);
-        console.log('user: ', user.get());
         if (!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({ message: 'Invalid username or password' });
         }
+
+        //Check password
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: 'Invalid password' });
+        }
         //After login generate token
         const token = await service.authService.generateToken(user.id, user.username,user.password, user.email);
+        //Session 
         req.session.user = user.username;
-        res.json({ data: { access_token: token.access_token, expires_in: token.expires_in }, message: 'Login successful!', status: 200 });
+        res.json({ data: { access_token: token.access_token, token: token.token, expires_in: TOKEN_EXPIRATION }, message: 'Login successful!', status: 200 });
     } catch(error) {
         console.error('Error: ', error);
         res.status(500).json({ message: 'Internal Server error-1' });
