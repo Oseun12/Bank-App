@@ -13,7 +13,7 @@ export default class DatabaseConfig {
 
     constructor() {
         this.db = process.env.DB_NAME || "postgres";
-        this.user = process.env.DB || "postgres";
+        this.user = process.env.DB_USER || "postgres";
         this.password = process.env.DB_PASSWORD || '001479';
         this.host = process.env.DB_HOST || 'localhost';
         this.port = process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 5432;
