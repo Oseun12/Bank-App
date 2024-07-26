@@ -79,48 +79,8 @@ export async function sendWelcomeEmail(email: string, user: User): Promise<void>
             console.error('Error sending notification email', error);
         }
     }
-//}
-
-
-// Usage
-// const notificationService = sendNotification();
-
-// const user1 = new User();
-// user1.username = "Maryy";
-// user1.email = user.email;
-// user1.id = 123; 
-// user1.status = "active";  
-
-// notificationService.sendNotification(user1.email, user1);
-
-// export async function sendNotification( email: string, user: User): Promise<void> {
-//     try {
-//         const notificationContent = 
-//         `Account created!
-//         Logging Details:
-//         userId: ${user.id}
-//         email: ${user.email}
-//         status: ${user.status}`
-
-//         //send email
-//         await transporter.sendMail({
-//             from: 'marrizzsalau7@gmail.com',
-//             to: user.email,
-//             subject: 'Account creation',
-//             text: notificationContent
-//         })
-//     } catch (error) {
-//         console.error('Error sending notification email', error);
-//     }
-// }
-// const user1 = new User();
-// user.username = user.username;
-// user.email = user.email;
-
-// sendNotification(user, onmessage);
-
 //Generating token
-const SECRET_KEY = 'somesecretsecret';
+const SECRET_KEY = process.env.SECRET_KEY;
 const TOKEN_EXPIRATION = '2hr';
 
 interface Token {
